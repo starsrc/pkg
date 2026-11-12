@@ -1,0 +1,39 @@
+version: '3'
+
+env:
+  GOWORK: "off"
+
+tasks:
+  default:
+    desc: "List all available tasks"
+    cmds:
+      - task --list
+
+  tidy:
+    desc: "Run go mod tidy across all independent Go modules"
+    cmds:
+      - go -C observability mod tidy
+      - go -C tx mod tidy
+      - go -C serverx mod tidy
+
+  test:
+    desc: "Run unit tests across all independent Go modules"
+    cmds:
+      - go -C observability test ./...
+      - go -C tx test ./...
+      - go -C serverx test ./...
+
+  test:cover:
+    desc: "Run unit tests with coverage across all independent Go modules"
+    cmds:
+      - go -C observability test -cover ./...
+      - go -C tx test -cover ./...
+      - go -C serverx test -cover ./...
+
+  lint:
+    desc: "Run gofmt check and go vet across all independent Go modules"
+    cmds:
+      - test -z "$(gofmt -s -l . | grep -Ev '^(\.worktrees/|(.*/)?vendor/)')"
+      - go -C observability vet ./...
+      - go -C tx vet ./...
+      - go -C serverx vet ./...

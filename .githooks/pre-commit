@@ -1,0 +1,14 @@
+#!/bin/sh
+# 提交前格式守门：只检查本次暂存的 Go 文件内容（排除 vendor），未格式化则拒绝提交。
+# 启用：git config core.hooksPath .githooks
+bad=""
+for f in $(git diff --cached --name-only --diff-filter=ACMR -- '*.go' | grep -Ev '(^|/)vendor/'); do
+  if [ -n "$(git show ":$f" | gofmt -s -l)" ]; then
+    bad="$bad
+  $f"
+  fi
+done
+if [ -n "$bad" ]; then
+  echo "pre-commit: 以下 Go 文件未通过 gofmt -s，请执行 gofmt -s -w 后重新暂存：$bad" >&2
+  exit 1
+fi
